@@ -1,0 +1,228 @@
+LINUX VIRTUAL MACHINE SETUP & BASIC ADMINISTRATION 
+
+Overview
+
+This documentation walks through setting up a Linux virtual machine and performing basic administration tasks, which includes:
+
+Installing and configuring a Linux VM using VirtualBox and an Ubuntu Server ISO	Creating and managing users and groups, and applying password policies
+
+Navigating the file system, creating directories and files, and managing file permissions and ownership
+
+Installing, updating, and managing software packages using APT
+
+Creating and executing Bash scripts to automate reporting and system monitoring
+
+
+SECTION 1 — Setting Up a Linux VM:
+
+ Download and Install a Virtual Machine Manager
+VirtualBox Installation
+
+A Virtual Machine (VM) allows you to run a full operating system inside your current system.
+We’ll use VirtualBox, which is free and works on Windows, macOS, and Linux.
+
+Steps:
+
+Visit the official VirtualBox download page:
+👉 https://www.virtualbox.org/wiki/Downloads
+
+Choose Linux
+
+Download and install VirtualBox using the default options.
+
+After installation, open VirtualBox — it will serve as your virtual environment manager.
+
+ Download a Linux ISO Image
+
+A Linux ISO image is the installation file for your Linux operating system.
+
+Ubuntu Server (CLI-based)
+
+Download the latest Ubuntu Server ISO from:
+ https://ubuntu.com/download/server
+
+ Create a New Virtual Machine
+
+Open VirtualBox and click “New”.
+
+Give it a name (e.g., Ubuntu-Lab).
+
+Set:
+
+Type: Linux
+
+Version: Ubuntu (64-bit)
+
+Assign 2 GB (2048 MB) of RAM or more.
+
+Create a new virtual hard disk (e.g., 20 GB).
+
+Select the ISO image you downloaded as the installation media.
+
+Start the VM and follow the on-screen steps to install Ubuntu.
+
+Once done, log in to your new Linux VM.
+
+
+SECTION 2 — User Management task:
+
+Step 1: Create a New User:
+sudo adduser harbey
+
+Follow the prompts to set a password and user information.
+
+Step 2: Create a New Group:
+sudo groupadd developers
+
+Add User to a Group:
+sudo usermod -aG developers harbey
+
+ Step 3: Set Password Policies
+
+Edit the password policy configuration file:
+
+sudo nano /etc/login.defs
+
+Find and modify these lines:
+
+PASS_MAX_DAYS   90      # Password expires after 90 days
+PASS_MIN_DAYS   10      # Minimum 10 days before it can be changed
+PASS_WARN_AGE   7       # Warn user 7 days before expiry
+
+
+Save and exit (Ctrl + O, Enter, Ctrl + X).
+
+Apply Policy to a Specific User
+sudo chage -l harbey              # View current policy
+sudo chage -M 90 -m 10 -W 7 harbey
+
+
+
+File System Navigation and Permissions:
+
+Working with the File System
+Create a  Directory
+cd ~
+mkdir linux_lab
+cd linux_lab
+pwd      # Confirm your current directory
+
+Create Files and Folders
+touch file1.txt
+touch file2.txt
+mkdir folder1
+mkdir folder2
+
+
+Check your work:
+
+ls -l
+
+ Copy, Move, and Remove Files
+cp file1.txt folder1/
+mv file2.txt folder2/
+rm file1.txt
+
+Change File and Folder Permissions
+
+Make folder1 private (owner only):
+
+chmod 700 folder1
+
+
+Make folder2 readable by everyone:
+
+chmod 755 folder2
+
+
+Verify permissions:
+
+ls -ld folder1 folder2
+
+ Change File Ownership
+
+Create a new user:
+
+sudo adduser testuser
+
+
+Change ownership of a file:
+
+cd folder2
+sudo chown testuser file2.txt
+
+
+Verify:
+
+ls -l file2.txt
+
+
+SECTION 3 — Package Management:
+Package Management (APT)
+What Is a Package?
+
+A package is a bundle containing program binaries, configuration files, and dependencies that make software installation simple and consistent.
+
+Step 1: Update and Upgrade the System
+sudo apt update
+sudo apt upgrade -y
+
+Install a New Package
+
+ tree installation
+
+sudo apt install tree -y
+
+Clean Up Unused Packages
+sudo apt autoremove -y
+sudo apt autoclean
+
+SECTION 4 — Bash Scripting:
+
+Bash Scripting: user_report.sh
+Step 1: Create the Script
+nano user_report.sh
+
+Step 2: Add the Following Code
+#!/bin/bash
+# user_report.sh - Displays user count and free disk space
+
+echo "==========================================="
+echo "     System User and Disk Report"
+echo "==========================================="
+
+# Count the number of users with home directories
+user_count=$(cat /etc/passwd | grep /home | wc -l)
+
+# Check free disk space on root directory
+disk_free=$(df -h / | awk 'NR==2 {print $4}')
+
+# Display the report
+echo "Number of users with home directories: $user_count"
+echo "Free disk space on root (/): $disk_free"
+echo "Report generated on: $(date)"
+echo "==========================================="
+
+Step 3: Save and Exit Nano
+
+Press Ctrl + O → Enter → Ctrl + X
+
+Step 4: Make the Script Executable
+chmod +x user_report.sh
+
+Step 5: Run the Script
+./user_report.sh
+
+
+ Expected Output :
+
+===========================================
+     System User and Disk Report
+===========================================
+Number of users with home directories: 3
+Free disk space on root (/): 8.5G
+Report generated on: Tue Nov 11 17:45:33 UTC 2025
+===========================================
+
+
+
